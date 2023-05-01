@@ -52,9 +52,9 @@ fi
 ###################################################################
 # Change here to set the amount of wiggle room desired - 102400 = 100MB
 WIGGLE_ROOM=1536
-DISK_SIZE="$(( $(blockdev --getsz /dev/mmcblk0)/2048/925 ))"
-PART_START="$(parted /dev/mmcblk0 -ms unit s p | grep "^2" | cut -f2 -d: | sed 's/[^0-9]*//g')"
-LAST_SECTOR="$(parted /dev/mmcblk0 -ms unit s p | grep "^\/dev" | cut -f2 -d: | sed 's/[^0-9]*//g')"
+DISK_SIZE="$(( $(blockdev --getsz /dev/sda)/2048/925 ))"
+PART_START="$(parted /dev/sda -ms unit s p | grep "^2" | cut -f2 -d: | sed 's/[^0-9]*//g')"
+LAST_SECTOR="$(parted /dev/sda -ms unit s p | grep "^\/dev" | cut -f2 -d: | sed 's/[^0-9]*//g')"
 PART_END="$(( LAST_SECTOR - WIGGLE_ROOM ))"
 #PART_END="$(( (DISK_SIZE * 925 * 2048 - 1) - WIGGLE_ROOM ))"
 
@@ -66,7 +66,7 @@ PART_END="$(( LAST_SECTOR - WIGGLE_ROOM ))"
 echo $PROGRAM - $VERSION
 echo ======================================================
 echo Current Disk Info
-fdisk -l /dev/mmcblk0
+fdisk -l /dev/sda
 echo
 echo ======================================================
 echo
@@ -76,7 +76,7 @@ echo " Part Start = $PART_START"
 echo " Part End   = $PART_END"
 echo
 echo "Making changes using fdisk..."
-printf "d\n2\nn\np\n2\n$PART_START\n$PART_END\np\nw\n" | fdisk /dev/mmcblk0
+printf "d\n2\nn\np\n2\n$PART_START\n$PART_END\np\nw\n" | fdisk /dev/sda
 echo
 echo Setting up init.d resize2fs_once script
 
@@ -97,7 +97,7 @@ case "$1" in
     log_daemon_msg "Starting resize2fs_once, THIS WILL TAKE A FEW MINUTES " && 
     
     # Do our stuff....   
-    resize2fs /dev/mmcblk0p2 &&
+    resize2fs /dev/sda2 &&
     
     # Okay, not lets remove this script
     rm /etc/init.d/resize2fs_once &&
